@@ -4,7 +4,9 @@
     VimKid
 
 ### 首次使用
-
+    需要提前安装好 docker , 可参照网上docker 安装教程 
+    linux: docker 安装教程:
+    windows: docker-desktop 安装教程: 
 
 ### 环境版本
     php:  8.1.3
