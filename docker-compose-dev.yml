@@ -1,0 +1,102 @@
+version: "3.8"
+services:
+
+  #  mongodb:
+  #    image: mongodb:4
+  #    container_name: mongodb
+  #    #    volumes:
+  #    #      - ./config/mysql/mysql.cnf:/etc/mysql.cnf
+  #    ports:
+  #      - 27017:27017
+
+  mysql:
+    image: mysql:5.6
+    build: config/mysql
+    container_name: mysql
+    working_dir: /data
+    volumes:
+      - ./data/mysql:/opt/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_DB}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+
+  redis:
+    image: redis:5.0.8
+    container_name: redis
+    volumes:
+      - ./config/redis/redis.conf:/etc/redis.conf
+    ports:
+      - 6380:6379
+
+  php-swoole:
+    build: config/php-swoole
+    container_name: php-swoole
+    working_dir: /app
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      # Change directory name to your project name. Example "./app/YOUR_DIRECTORY_NAME:/app"
+       - ./app/:/app
+#      - type: bind
+#        source: ./app
+#        target: /app
+#        read_only: false
+#        bind:
+#          propagation: rshared
+    #      - ./config/php-swoole/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+    ports:
+      - "1215:1215" # Swoole port
+#      - "8000:8000" # PHP laravel server port
+    depends_on:
+      - mysql
+      - redis
+    command:   #  加& 为并行执行  , 参考 https://blog.csdn.net/whatday/article/details/108863389
+#      - sh /app/new_crm/init.sh
+      - sh
+      - -c
+      - |
+        php /app/new_crm/artisan swoole:http start &
+        sh /app/new_crm/hot_reload.sh
+
+
+#        sh /app/new_crm/init.sh
+  #        php /app/new_crm/artisan serve --host 0.0.0.0 &
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    working_dir: /app
+    ports:
+      - "80:80" # HTTP
+      - "8001:8001" #  new_crm 本地
+
+    volumes:
+      - ./app:/app
+      - ./config/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+      - ./config/nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - php-swoole
+      - php-fpm
+
+  php-fpm:
+    build: config/php-fpm
+    container_name: php-fpm
+    working_dir:  /app
+    volumes:
+      # Change directory name to your project name. Example "./app/YOUR_DIRECTORY_NAME:/app"
+      - ./app/:/app
+#      - ./config/php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/overrides.ini
+      - ./config/php-fpm/docker-php-ext-opcache.ini:/usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+    ports:
+      - "9000:9000"
+
+#    command:
+#      - sh /app/new_crm/init.sh
+
+    depends_on:
+      - mysql
+      - redis

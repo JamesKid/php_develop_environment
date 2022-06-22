@@ -1,0 +1,49 @@
+# DATA
+
+logs/*
+!logs/README.md
+
+# DATA
+data/*
+!/data/README.md
+
+# ENV
+.env
+!README.md
+
+# APP
+
+#!app/README.md
+
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python:
+*.py[cod]
+*.so
+*.egg
+*.egg-info
+
+# for Mac OS X System Files
+.DS_Store
+Thumbs.db
+
+# for emacs
+*~
+[#]*[#]
+
+# for Eclipse
+*.project
+
+# for Logs and databases
+*.log
+
+# for project 
+app/*
+!app/README.md
+
+# for idea  
+.idea
+
