@@ -34,7 +34,7 @@ cd app
 
 
 # 拉取需要部署的项目代码 
-git clone git@gitee.com:xianrenhui/new-crm.git ./app/easyswoole-crm
+git clone git@gitee.com:xxx/myproject.git ./app/myproject
 
 ```
 ### 启动命令
